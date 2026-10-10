@@ -21,8 +21,9 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(project(":shared"))
-
+            implementation("co.touchlab:kermit:2.0.4")
             implementation(libs.compose.ui)
+            implementation(libs.multiplatform.settings.no.arg)
         }
     }
 }
