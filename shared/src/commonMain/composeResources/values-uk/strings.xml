@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Українська -->
+<resources>
+    <string name="app_name">Пекарня</string>
+
+    <string name="about_skip">Пропустити</string>
+    <string name="about_next">Далі</string>
+    <string name="about_start">Почати</string>
+
+    <string name="about_1_title">Ласкаво просимо до пекарні</string>
+    <string name="about_1_text">Свіжі торти, випічка й хліб з нашої пекарні — усе в одному застосунку.</string>
+
+    <string name="about_2_title">Знаходьте те, що хочеться</string>
+    <string name="about_2_text">Переглядайте категорії, шукайте за назвою, фільтруйте за ціною й одразу бачте, що є в наявності сьогодні.</string>
+
+    <string name="about_3_title">Улюблене наших клієнтів</string>
+    <string name="about_3_text">Ці смаколики мають найкращі оцінки просто зараз. Список завантажується з нашого каталогу наживо.</string>
+
+    <string name="about_4_title">Резервуйте свіже</string>
+    <string name="about_4_text">Оберіть потрібний розмір, і ми потримаємо ваші позиції, поки ви оформлюєте замовлення. Неоплачені резервації знімаються автоматично.</string>
+
+    <string name="popular_error">Не вдалося завантажити каталог. Перевірте з’єднання.</string>
+    <string name="popular_retry">Спробувати знову</string>
+    <string name="popular_empty">Поки що немає товарів з оцінками.</string>
+
+    <string name="price_format">%1$s ₴</string>
+    <plurals name="reviews_count">
+        <item quantity="one">%1$d відгук</item>
+        <item quantity="few">%1$d відгуки</item>
+        <item quantity="many">%1$d відгуків</item>
+        <item quantity="other">%1$d відгуку</item>
+    </plurals>
+
+    <string name="home_placeholder">Тут буде екран каталогу.</string>
+</resources>

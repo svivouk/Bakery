@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- English (default locale) -->
+<resources>
+    <string name="app_name">Bakery</string>
+
+    <string name="about_skip">Skip</string>
+    <string name="about_next">Next</string>
+    <string name="about_start">Get started</string>
+
+    <string name="about_1_title">Welcome to the Bakery</string>
+    <string name="about_1_text">Fresh cakes, pastries and bread from our bakery, all in one app.</string>
+
+    <string name="about_2_title">Find what you crave</string>
+    <string name="about_2_text">Browse categories, search by name, filter by price and see at a glance what is in stock today.</string>
+
+    <string name="about_3_title">Customer favourites</string>
+    <string name="about_3_text">These treats have the best ratings right now. The list is loaded live from our catalog.</string>
+
+    <string name="about_4_title">Reserve it fresh</string>
+    <string name="about_4_text">Pick the size you need and we will hold your items while you finish the order. Unpaid reservations are released automatically.</string>
+
+    <string name="popular_error">Could not load the catalog. Check your connection.</string>
+    <string name="popular_retry">Try again</string>
+    <string name="popular_empty">No rated products yet.</string>
+
+    <string name="price_format">%1$s UAH</string>
+    <plurals name="reviews_count">
+        <item quantity="one">%1$d review</item>
+        <item quantity="other">%1$d reviews</item>
+    </plurals>
+
+    <string name="home_placeholder">The catalog screen goes here.</string>
+</resources>
