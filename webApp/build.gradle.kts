@@ -24,6 +24,7 @@ kotlin {
             implementation("co.touchlab:kermit:2.0.4")
             implementation(libs.compose.ui)
             implementation(libs.multiplatform.settings.no.arg)
+            implementation("org.jetbrains.compose.components:components-resources:1.12.1")
         }
     }
 }
