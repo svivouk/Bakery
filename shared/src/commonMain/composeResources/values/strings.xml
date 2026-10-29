@@ -30,4 +30,20 @@
     </plurals>
 
     <string name="home_placeholder">The catalog screen goes here.</string>
+    <string name="login_error_username_empty">Enter a username</string>
+    <string name="login_error_username_short">At least 3 characters</string>
+    <string name="login_error_username_chars">Letters, digits, “_” and “.” only	</string>
+    <string name="login_error_password_empty">Enter a password</string>
+    <string name="login_error_password_short">At least 6 characters</string>
+    <string name="login_error_password_letter">Add at least one letter</string>
+    <string name="login_error_password_digit">Add at least one digit</string>
+    <string name="login_title">Welcome back</string>
+    <string name="login_subtitle">Sign in to continue</string>
+    <string name="login_username">Username</string>
+    <string name="login_password">Password</string>
+    <string name="login_hide">Hide</string>
+    <string name="login_show">Show</string>
+    <string name="login_error_auth">Sign-in failed. Try again</string>
+    <string name="login_sign_in">Sign in</string>
+
 </resources>

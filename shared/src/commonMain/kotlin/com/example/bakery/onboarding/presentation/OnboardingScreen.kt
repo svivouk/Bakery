@@ -1,9 +1,7 @@
-package com.example.bakery.AboutApp
+package com.example.bakery.onboarding.presentation
 
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -22,11 +20,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -37,13 +31,11 @@ import bakery.shared.generated.resources.Res
 import bakery.shared.generated.resources.about_next
 import bakery.shared.generated.resources.about_skip
 import bakery.shared.generated.resources.about_start
-import com.example.bakery.data.CatalogApi
-import com.example.bakery.data.ProductListItem
+import com.example.bakery.onboarding.data.ProductListItem
 import com.example.bakery.presentation.ui.theme.primaryContainerLight
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.stringResource
-import kotlin.coroutines.cancellation.CancellationException
 import kotlin.math.roundToInt
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.height
@@ -51,50 +43,49 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.CardColors
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.snapshotFlow
 import bakery.shared.generated.resources.popular_empty
 import bakery.shared.generated.resources.popular_error
 import bakery.shared.generated.resources.popular_retry
 import bakery.shared.generated.resources.price_format
 import bakery.shared.generated.resources.reviews_count
-import com.example.bakery.presentation.ui.theme.backgroundDark
 import com.example.bakery.presentation.ui.theme.errorDark
-import com.example.bakery.presentation.ui.theme.inversePrimaryDark
 import com.example.bakery.presentation.ui.theme.onSurfaceDark
 import com.example.bakery.presentation.ui.theme.onSurfaceLight
-import com.example.bakery.presentation.ui.theme.primaryContainerDark
-import com.example.bakery.presentation.ui.theme.primaryLightHighContrast
+import com.example.bakery.presentation.ui.theme.outlineVariantLight
+import com.example.bakery.presentation.ui.theme.primaryLight
 import org.jetbrains.compose.resources.pluralStringResource
+import org.koin.compose.viewmodel.koinViewModel
 import kotlin.math.roundToLong
 
 
 @Composable
-fun AboutScreen (
-    api: CatalogApi,
+fun OnboardingScreen(
     onFinished: () -> Unit,
-){
-    val pagerState = rememberPagerState(pageCount = {pages.size})
+    viewModel: OnboardingViewModel = koinViewModel(),
+) {
+    val state by viewModel.state.collectAsState()
     val scope = rememberCoroutineScope()
-    val isLast = pagerState.currentPage == pages.lastIndex
+    val pagerState = rememberPagerState(pageCount = { state.pages.size })
 
-    var reloadKey by remember { mutableIntStateOf(0) }
-    var popular by remember { mutableStateOf<PopularState>(PopularState.Loading) }
-    LaunchedEffect(reloadKey) {
-        popular = PopularState.Loading
-        popular = try {
-            PopularState.Loaded(api.products(pageSize = 5))
-        } catch (e: CancellationException) {
-            throw e
-        } catch (e: Exception) {
-            println("API Error (${e::class.simpleName}): ${e.message}")
-            e.printStackTrace()
-            PopularState.Failed
+    LaunchedEffect(Unit) {
+        viewModel.effect.collect { effect ->
+            when (effect) {
+                OnboardingEffect.NavigateToHome -> onFinished()
+            }
         }
     }
+    LaunchedEffect(pagerState) {
+        snapshotFlow { pagerState.currentPage }.collect { index ->
+            viewModel.onIntent(OnboardingIntent.PageChanged(index))
+        }
+    }
+
+    val isLast = state.isLastPage
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -108,10 +99,9 @@ fun AboutScreen (
             horizontalArrangement = Arrangement.End,
         ) {
             TextButton(
-                onClick = onFinished,
-                enabled = !isLast,
-                modifier = Modifier
-                    .alpha(if (isLast) 0f else 1f)
+                onClick = { viewModel.onIntent(OnboardingIntent.SkipClicked) },
+                enabled = !isLast && !state.isSaving,
+                modifier = Modifier.alpha(if (isLast) 0f else 1f),
             ) {
                 Text(stringResource(Res.string.about_skip))
             }
@@ -123,32 +113,37 @@ fun AboutScreen (
                 .weight(1f)
                 .fillMaxWidth(),
         ) { index ->
-            val page = pages[index]
+            val page = state.pages[index]
             PageContent(page) {
                 if (page.showsApiData) {
-                    PopularProducts(state = popular, onRetry = { reloadKey++ })
+                    PopularProducts(state = state.popular, onRetry = { viewModel.onIntent(
+                        OnboardingIntent.RetryClicked) })
                 }
             }
         }
 
         PagerIndicator(
-            pageCount = pages.size,
+            pageCount = state.pages.size,
             currentPage = pagerState.currentPage,
             modifier = Modifier
                 .padding(vertical = 16.dp)
-                .align(Alignment.CenterHorizontally)
+                .align(Alignment.CenterHorizontally),
         )
 
         Button(
             onClick = {
-                if (isLast) onFinished()
-                else scope.launch { pagerState.animateScrollToPage(pagerState.currentPage + 1) }
+                if (isLast) {
+                    viewModel.onIntent(OnboardingIntent.NextClicked)
+                } else {
+                    scope.launch { pagerState.animateScrollToPage(pagerState.currentPage + 1) }
+                }
             },
+            enabled = !state.isSaving,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 24.dp)
-                .padding(bottom = 24.dp)
-            ) {
+                .padding(bottom = 24.dp),
+        ) {
             Text(
                 text = stringResource(if (isLast) Res.string.about_start else Res.string.about_next),
                 fontSize = 16.sp,
@@ -159,7 +154,7 @@ fun AboutScreen (
 }
 
 @Composable
-private fun PageContent(page: AboutPage, extra: @Composable () -> Unit) {
+private fun PageContent(page: OnboardingPage, extra: @Composable () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -186,27 +181,31 @@ private fun PageContent(page: AboutPage, extra: @Composable () -> Unit) {
 }
 
 @Composable
-private fun PagerIndicator(pageCount: Int, currentPage: Int, modifier: Modifier = Modifier) {
-    Row(modifier = modifier, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+private fun PagerIndicator(
+    pageCount: Int,
+    currentPage: Int,
+    modifier: Modifier = Modifier,
+    ) {
+    Row(modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         repeat(pageCount) { index ->
             val selected = index == currentPage
             val color by animateColorAsState(
-                if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant,
+                if (selected) primaryLight else outlineVariantLight,
             )
-            val width by animateDpAsState(if (selected) 24.dp else 8.dp)
             Box(Modifier
                 .height(8.dp)
-                .width(width)
-                .background(color, CircleShape))
+                .width(8.dp)
+                .background(color,CircleShape))
         }
     }
 }
 
 @Composable
-private fun PopularProducts(state: PopularState, onRetry: () -> Unit) {
+private fun PopularProducts(state: ProductsState, onRetry: () -> Unit) {
     when (state) {
-        PopularState.Loading -> CircularProgressIndicator()
-        PopularState.Failed -> Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        ProductsState.Loading -> CircularProgressIndicator()
+        ProductsState.Failed -> Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
                 text = stringResource(Res.string.popular_error),
                 color = errorDark,
@@ -214,7 +213,7 @@ private fun PopularProducts(state: PopularState, onRetry: () -> Unit) {
             )
             TextButton(onClick = onRetry) { Text(stringResource(Res.string.popular_retry)) }
         }
-        is PopularState.Loaded ->
+        is ProductsState.Loaded ->
             if (state.items.isEmpty()) {
                 Text(stringResource(Res.string.popular_empty), textAlign = TextAlign.Center)
             } else {
@@ -261,5 +260,4 @@ private fun formatMoney(value: Double): String {
     val cents = (value * 100).roundToLong()
     return "${cents / 100}.${(cents % 100).toString().padStart(2, '0')}"
 }
-
 private fun formatRating(value: Double): String = ((value * 10).roundToInt() / 10.0).toString()

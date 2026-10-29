@@ -49,8 +49,14 @@ kotlin {
             implementation(libs.compose.uiToolingPreview)
             implementation(libs.compose.uiTooling)
             implementation(libs.ktor.client.okhttp)
+            implementation(libs.nav3.runtime.android)
+            implementation(libs.nav3.ui.android)
+            implementation(libs.koin.android)
         }
         commonMain.dependencies {
+            api(project.dependencies.platform(libs.koin.bom))
+            api(libs.koin.core)
+            implementation(libs.mpp.settings.no.arg)
             implementation(libs.compose.runtime)
             implementation(libs.compose.foundation)
             implementation(libs.compose.material3)
@@ -62,6 +68,14 @@ kotlin {
             implementation(libs.ktor.client.core)
             implementation(libs.ktor.client.content.negotiation)
             implementation(libs.ktor.serialization.kotlinx.json)
+            implementation(libs.nav3.ui.kmp)
+            implementation(libs.nav3.viewmodel.kmp)
+            implementation(libs.kotlinx.serialization.json)
+            implementation(project.dependencies.platform(libs.koin.bom))
+            implementation(libs.koin.core)
+            implementation(libs.koin.compose)
+            implementation(libs.koin.compose.viewmodel)
+            implementation(libs.settings.coroutines)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

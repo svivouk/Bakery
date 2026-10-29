@@ -1,4 +1,4 @@
-package com.example.bakery.data
+package com.example.bakery.onboarding.data
 
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
